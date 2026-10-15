@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -89,6 +88,25 @@ h2 { font-size: 20px; }
   overflow-wrap: anywhere;
   margin: 8px 0;
 }
+
+.platform-badge {
+  display: inline-block;
+  margin: 4px 5px 4px 0;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+  background: #374151;
+  color: #f9fafb;
+}
+.platform-youtube { background: #b91c1c; }
+.platform-tiktok { background: #111111; border: 1px solid #6b7280; }
+.platform-facebook { background: #1877f2; }
+.platform-mp4 { background: #047857; }
+.platform-external { background: #6b4f9b; }
+
 .player {
   display: block;
   width: 100%;
@@ -296,6 +314,22 @@ footer {
     return { type: "external" };
   }
 
+function getPlatformLabel(info) {
+  switch (info.type) {
+    case "youtube":
+      return { name: "▶ YOUTUBE", css: "platform-youtube" };
+    case "tiktok":
+    case "tiktok-link":
+      return { name: "♪ TIKTOK", css: "platform-tiktok" };
+    case "facebook":
+      return { name: "f FACEBOOK", css: "platform-facebook" };
+    case "direct-video":
+      return { name: "▶ MP4", css: "platform-mp4" };
+    default:
+      return { name: "↗ ENLACE EXTERNO", css: "platform-external" };
+  }
+}
+
   function save() {
     try {
       localStorage.setItem(KEY, JSON.stringify(videos));
@@ -334,9 +368,17 @@ footer {
       const card = document.createElement("article");
       card.className = "video-card";
 
-      const heading = document.createElement("h3");
-      heading.textContent = video.title;
-      card.append(heading);
+      
+const heading = document.createElement("h3");
+heading.textContent = video.title;
+card.append(heading);
+
+const platform = getPlatformLabel(getVideoInfo(video.url));
+const badge = document.createElement("span");
+badge.className = "platform-badge " + platform.css;
+badge.textContent = platform.name;
+card.append(badge);
+
 
       const info = getVideoInfo(video.url);
       let player;
