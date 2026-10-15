@@ -1,1 +1,302 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>LC Facebook Player</title>
+<style>
+:root {
+  color-scheme: dark;
+  --blue: #1877f2;
+  --bg: #111827;
+  --card: #1f2937;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+header {
+  padding: 24px 16px;
+  text-align: center;
+  background: #0b1220;
+  border-bottom: 1px solid #374151;
+}
+.logo {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin: auto auto 10px;
+  border-radius: 16px;
+  background: var(--blue);
+  font-size: 28px;
+  font-weight: 800;
+}
+h1 { margin: 0; font-size: 25px; }
+header p { color: var(--muted); margin-bottom: 0; }
+main {
+  width: min(900px, 100%);
+  margin: auto;
+  padding: 18px 14px 40px;
+}
+.panel, .video-card {
+  background: var(--card);
+  border: 1px solid #374151;
+  border-radius: 16px;
+  padding: 15px;
+}
+.panel { margin-bottom: 22px; }
+label { display: block; margin: 12px 0 7px; }
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #4b5563;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+}
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 15px;
+  background: var(--blue);
+  color: white;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.primary { width: 100%; margin-top: 12px; }
+button.secondary { background: #374151; }
+button.delete { background: #7f1d1d; }
+.note { color: var(--muted); font-size: 13px; line-height: 1.5; }
+h2 { font-size: 20px; }
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.video-card { min-width: 0; padding: 10px; }
+.video-card h3 {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  margin: 8px 0;
+}
+.player {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 440px;
+  border: 0;
+  border-radius: 10px;
+  background: #0b1220;
+}
+.player.landscape { aspect-ratio: 16 / 9; }
+.actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.actions button { flex: 1; padding: 10px 7px; }
+.empty {
+  grid-column: 1 / -1;
+  padding: 30px 10px;
+  text-align: center;
+  color: var(--muted);
+}
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+  font-size: 12px;
+}
+@media (max-width: 440px) {
+  .gallery { grid-template-columns: 1fr; }
+  .video-card { padding: 12px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">LC</div>
+  <h1>LC Facebook Player</h1>
+  <p>Tu colección de videos favoritos</p>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Agregar video</h2>
+    <form id="addForm">
+      <label for="videoTitle">Nombre del video</label>
+      <input id="videoTitle" maxlength="100"
+        placeholder="Mi video favorito" required>
+
+      <label for="videoUrl">Enlace de Facebook</label>
+      <input id="videoUrl" type="url" inputmode="url"
+        placeholder="https://www.facebook.com/..." required>
+
+      <button class="primary" type="submit">＋ Agregar a mi galería</button>
+    </form>
+    <p class="note">
+      Usa enlaces de videos o Reels públicos. Algunos videos no
+      permiten reproducción integrada por restricciones de Facebook.
+      La galería se guarda en este navegador.
+    </p>
+    <button id="clearAll" class="secondary" type="button">
+      Borrar toda mi galería
+    </button>
+  </section>
+
+  <h2>Mi galería</h2>
+  <section id="gallery" class="gallery">
+    <p class="empty">Todavía no has agregado videos.</p>
+  </section>
+</main>
+
+<footer>LC Facebook Player · Luis Charlii</footer>
+
+<script>
+(function () {
+  const KEY = "lc-facebook-player-v1";
+  const form = document.getElementById("addForm");
+  const titleInput = document.getElementById("videoTitle");
+  const urlInput = document.getElementById("videoUrl");
+  const gallery = document.getElementById("gallery");
+  let videos = [];
+
+  try {
+    videos = JSON.parse(localStorage.getItem(KEY) || "[]");
+    if (!Array.isArray(videos)) videos = [];
+  } catch (_) {
+    videos = [];
+  }
+
+  function validFacebookUrl(value) {
+    try {
+      const u = new URL(value);
+      return ["facebook.com", "www.facebook.com",
+        "m.facebook.com", "fb.watch", "web.facebook.com"
+      ].includes(u.hostname.toLowerCase());
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function embedUrl(value) {
+    return "https://www.facebook.com/plugins/video.php?href=" +
+      encodeURIComponent(value) +
+      "&show_text=false&width=560";
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(videos));
+      return true;
+    } catch (_) {
+      alert("No se pudo guardar. Revisa el espacio disponible.");
+      return false;
+    }
+  }
+
+  function makeButton(label, className, action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.className = className;
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  function render() {
+    gallery.replaceChildren();
+
+    if (!videos.length) {
+      const empty = document.createElement("p");
+      empty.className = "empty";
+      empty.textContent = "Todavía no has agregado videos.";
+      gallery.append(empty);
+      return;
+    }
+
+    videos.forEach(function (video, index) {
+      const card = document.createElement("article");
+      card.className = "video-card";
+
+      const heading = document.createElement("h3");
+      heading.textContent = video.title;
+      card.append(heading);
+
+      const player = document.createElement("iframe");
+      player.className = "player";
+      player.title = "Reproductor: " + video.title;
+      player.src = embedUrl(video.url);
+      player.loading = "lazy";
+      player.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
+      player.allowFullscreen = true;
+      card.append(player);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      actions.append(makeButton("Abrir en Facebook",
+        "secondary", function () {
+          window.open(video.url, "_blank", "noopener,noreferrer");
+        }));
+
+      actions.append(makeButton("Eliminar", "delete", function () {
+        videos.splice(index, 1);
+        save();
+        render();
+      }));
+
+      card.append(actions);
+      gallery.append(card);
+    });
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const title = titleInput.value.trim();
+    const url = urlInput.value.trim();
+
+    if (!validFacebookUrl(url)) {
+      alert("Introduce un enlace válido de Facebook o fb.watch.");
+      return;
+    }
+
+    if (videos.some(function (v) { return v.url === url; })) {
+      alert("Ese enlace ya está en tu galería.");
+      return;
+    }
+
+    videos.unshift({ title: title, url: url });
+
+    if (save()) {
+      form.reset();
+      render();
+    } else {
+      videos.shift();
+    }
+  });
+
+  document.getElementById("clearAll").addEventListener("click",
+    function () {
+      if (!videos.length) {
+        alert("Tu galería ya está vacía.");
+        return;
+      }
+      if (confirm("¿Quieres borrar todos los videos guardados?")) {
+        videos = [];
+        save();
+        render();
+      }
+    });
+
+  render();
+})();
+</script>
+</body>
+</html>
+
