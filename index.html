@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -245,6 +244,12 @@ footer {
           window.open(video.url, "_blank", "noopener,noreferrer");
         }));
 
+actions.append(makeButton("Procesar en FDownloader",
+  "secondary", function () {
+    window.open("https://fdownloader.net/es",
+      "_blank", "noopener,noreferrer");
+  }));
+
       actions.append(makeButton("Eliminar", "delete", function () {
         videos.splice(index, 1);
         save();
@@ -299,4 +304,3 @@ footer {
 </script>
 </body>
 </html>
-
