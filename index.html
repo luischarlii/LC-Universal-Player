@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>LC Facebook Player</title>
+<title>LC Universal Player</title>
 <style>
 :root {
   color-scheme: dark;
@@ -36,7 +36,7 @@ header {
   margin: auto auto 10px;
   border-radius: 16px;
   background: var(--blue);
-  font-size: 28px;
+  font-size: 23px;
   font-weight: 800;
 }
 h1 { margin: 0; font-size: 25px; }
@@ -90,6 +90,7 @@ h2 { font-size: 20px; }
   margin: 8px 0;
 }
 .player {
+  display: block;
   width: 100%;
   aspect-ratio: 9 / 16;
   max-height: 440px;
@@ -98,7 +99,15 @@ h2 { font-size: 20px; }
   background: #0b1220;
 }
 .player.landscape { aspect-ratio: 16 / 9; }
-.actions { display: flex; flex-wrap: wrap; gap: 7px; }
+video.player {
+  object-fit: contain;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
 .actions button { flex: 1; padding: 10px 7px; }
 .empty {
   grid-column: 1 / -1;
@@ -121,8 +130,8 @@ footer {
 <body>
 <header>
   <div class="logo">LC</div>
-  <h1>LC Facebook Player</h1>
-  <p>Tu colección de videos favoritos</p>
+  <h1>LC Universal Player</h1>
+  <p>YouTube · TikTok · Facebook · MP4</p>
 </header>
 
 <main>
@@ -133,41 +142,40 @@ footer {
       <input id="videoTitle" maxlength="100"
         placeholder="Mi video favorito" required>
 
-      <label for="videoUrl">Enlace de Facebook</label>
+      <label for="videoUrl">Enlace del video</label>
       <input id="videoUrl" type="url" inputmode="url"
-        placeholder="https://www.facebook.com/..." required>
+        placeholder="Pega aquí el enlace" required>
 
-      <button class="primary" type="submit">＋ Agregar a mi galería</button>
+      <button class="primary" type="submit">
+        ＋ Agregar a mi galería
+      </button>
     </form>
     <p class="note">
-      Usa enlaces de videos o Reels públicos. Algunos videos no
-      permiten reproducción integrada por restricciones de Facebook.
-      La galería se guarda en este navegador.
+      Pega enlaces de YouTube, TikTok o Facebook. También puedes
+      agregar enlaces directos a archivos MP4. La reproducción
+      depende de las funciones y restricciones de cada plataforma.
+      Tu galería se guarda en este navegador.
     </p>
     <button id="clearAll" class="secondary" type="button">
       Borrar toda mi galería
     </button>
   </section>
 
-<section class="panel" id="directPlayer">
-  <h2>Reproducir video directamente</h2>
-  <p class="note">
-    Pega una URL directa a un archivo MP4 que tengas
-    permiso para reproducir. Los enlaces compartidos de
-    Facebook no son enlaces directos a archivos MP4.
-  </p>
-  <label for="mp4Url">Dirección del video MP4</label>
-  <input id="mp4Url" type="url" inputmode="url"
-    placeholder="https://ejemplo.com/video.mp4">
-  <button class="primary" id="playMp4" type="button">
-    Reproducir video
-  </button>
-  <video id="mp4Player" controls playsinline
-    preload="metadata"
-    style="display:none;width:100%;margin-top:14px;border-radius:12px;background:#000">
-  </video>
-  <p id="mp4Message" class="note" aria-live="polite"></p>
-</section>
+  <section class="panel">
+    <h2>Reproducir MP4 de mi iPhone</h2>
+    <label for="localMp4">Seleccionar un video descargado</label>
+    <input id="localMp4" type="file" accept="video/*">
+    <video id="localPlayer" class="player landscape"
+      controls playsinline preload="metadata"
+      style="display:none;margin-top:12px"></video>
+    <p id="localMessage" class="note" aria-live="polite">
+      Selecciona un video de la app Archivos de tu iPhone.
+    </p>
+    <p class="note">
+      El archivo se reproduce localmente; no se sube a Internet
+      ni se comparte automáticamente con otros dispositivos.
+    </p>
+  </section>
 
   <h2>Mi galería</h2>
   <section id="gallery" class="gallery">
@@ -175,39 +183,117 @@ footer {
   </section>
 </main>
 
-<footer>LC Facebook Player · Luis Charlii</footer>
+<footer>LC Universal Player · Luis Charlii</footer>
 
 <script>
 (function () {
+  // Conservamos la clave anterior para recuperar tu galería.
   const KEY = "lc-facebook-player-v1";
+
   const form = document.getElementById("addForm");
   const titleInput = document.getElementById("videoTitle");
   const urlInput = document.getElementById("videoUrl");
   const gallery = document.getElementById("gallery");
+  const localMp4 = document.getElementById("localMp4");
+  const localPlayer = document.getElementById("localPlayer");
+  const localMessage = document.getElementById("localMessage");
+
   let videos = [];
+  let localVideoUrl = null;
 
   try {
     videos = JSON.parse(localStorage.getItem(KEY) || "[]");
     if (!Array.isArray(videos)) videos = [];
+    videos = videos.filter(v =>
+      v && typeof v.title === "string" &&
+      typeof v.url === "string"
+    );
   } catch (_) {
     videos = [];
   }
 
-  function validFacebookUrl(value) {
+  function getUrl(value) {
     try {
-      const u = new URL(value);
-      return ["facebook.com", "www.facebook.com",
-        "m.facebook.com", "fb.watch", "web.facebook.com"
-      ].includes(u.hostname.toLowerCase());
+      const u = new URL(value.trim());
+      if (u.protocol !== "https:" && u.protocol !== "http:") {
+        return null;
+      }
+      return u;
     } catch (_) {
-      return false;
+      return null;
     }
   }
 
-  function embedUrl(value) {
-    return "https://www.facebook.com/plugins/video.php?href=" +
-      encodeURIComponent(value) +
-      "&show_text=false&width=560";
+  function getVideoInfo(value) {
+    const u = getUrl(value);
+    if (!u) return { type: "invalid" };
+
+    const host = u.hostname.toLowerCase().replace(/^www\./, "");
+
+    // YouTube: videos normales, enlaces cortos y Shorts.
+    if (["youtube.com", "m.youtube.com", "youtube-nocookie.com"].includes(host)) {
+      let id = u.searchParams.get("v");
+
+      if (u.pathname.startsWith("/shorts/")) {
+        id = u.pathname.split("/")[2];
+      } else if (u.pathname.startsWith("/embed/")) {
+        id = u.pathname.split("/")[2];
+      } else if (u.pathname.startsWith("/live/")) {
+        id = u.pathname.split("/")[2];
+      }
+
+      if (id && /^[\w-]{11}$/.test(id)) {
+        return {
+          type: "youtube",
+          embed: "https://www.youtube-nocookie.com/embed/" +
+            encodeURIComponent(id)
+        };
+      }
+    }
+
+    if (host === "youtu.be") {
+      const id = u.pathname.split("/").filter(Boolean)[0];
+      if (id && /^[\w-]{11}$/.test(id)) {
+        return {
+          type: "youtube",
+          embed: "https://www.youtube-nocookie.com/embed/" +
+            encodeURIComponent(id)
+        };
+      }
+    }
+
+    // TikTok: el reproductor integrado requiere un ID de video.
+    if (host === "tiktok.com" || host.endsWith(".tiktok.com")) {
+      const match = u.pathname.match(/\/video\/(\d+)/);
+      if (match) {
+        return {
+          type: "tiktok",
+          embed: "https://www.tiktok.com/player/v1/" + match[1]
+        };
+      }
+      return { type: "tiktok-link" };
+    }
+
+    // Facebook y fb.watch.
+    if (
+      host === "facebook.com" ||
+      host.endsWith(".facebook.com") ||
+      host === "fb.watch"
+    ) {
+      return {
+        type: "facebook",
+        embed: "https://www.facebook.com/plugins/video.php?href=" +
+          encodeURIComponent(u.href) +
+          "&show_text=false&width=560"
+      };
+    }
+
+    // Archivo de video directo, por ejemplo .mp4.
+    if (/\.(mp4|webm|ogv|ogg|m4v)(?:$)/i.test(u.pathname)) {
+      return { type: "direct-video" };
+    }
+
+    return { type: "external" };
   }
 
   function save() {
@@ -229,6 +315,10 @@ footer {
     return button;
   }
 
+  function openOriginal(url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   function render() {
     gallery.replaceChildren();
 
@@ -248,68 +338,60 @@ footer {
       heading.textContent = video.title;
       card.append(heading);
 
-      const player = document.createElement("iframe");
-      player.className = "player";
-      player.title = "Reproductor: " + video.title;
-      player.src = embedUrl(video.url);
-      player.loading = "lazy";
-      player.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
-      player.allowFullscreen = true;
-      card.append(player);
+      const info = getVideoInfo(video.url);
+      let player;
+
+      if (
+        info.type === "youtube" ||
+        info.type === "facebook" ||
+        info.type === "tiktok"
+      ) {
+        player = document.createElement("iframe");
+        player.className = "player";
+        player.title = "Reproductor: " + video.title;
+        player.src = info.embed;
+        player.loading = "lazy";
+        player.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        player.allowFullscreen = true;
+        player.referrerPolicy = "strict-origin-when-cross-origin";
+        card.append(player);
+      } else if (info.type === "direct-video") {
+        player = document.createElement("video");
+        player.className = "player landscape";
+        player.controls = true;
+        player.playsInline = true;
+        player.preload = "metadata";
+        player.src = video.url;
+        card.append(player);
+      } else {
+        const message = document.createElement("p");
+        message.className = "note";
+
+        if (info.type === "tiktok-link") {
+          message.textContent =
+            "Para este enlace de TikTok, usa el botón de abajo. Los enlaces cortos no siempre permiten insertar el reproductor.";
+        } else {
+          message.textContent =
+            "Este enlace no ofrece un reproductor integrado compatible. Puedes abrirlo en su sitio original.";
+        }
+        card.append(message);
+      }
 
       const actions = document.createElement("div");
       actions.className = "actions";
 
-      actions.append(makeButton("Abrir en Facebook",
-        "secondary", function () {
-          window.open(video.url, "_blank", "noopener,noreferrer");
-        }));
-
-actions.append(makeButton("Procesar en FDownloader",
-  "secondary", function () {
-    window.open("https://fdownloader.net/es",
-      "_blank", "noopener,noreferrer");
-  }));
+      actions.append(makeButton("Abrir video", "secondary", function () {
+        openOriginal(video.url);
+      }));
 
       actions.append(makeButton("Eliminar", "delete", function () {
-        videos.splice(index, 1);
-        save();
-
-const mp4Url = document.getElementById("mp4Url");
-const mp4Player = document.getElementById("mp4Player");
-const mp4Message = document.getElementById("mp4Message");
-
-document.getElementById("playMp4").addEventListener("click", function () {
-  const value = mp4Url.value.trim();
-
-  try {
-    const u = new URL(value);
-
-    if (u.protocol !== "https:" && u.protocol !== "http:") {
-      throw new Error("Protocolo no válido");
-    }
-
-    if (!value) throw new Error("URL vacía");
-
-    mp4Player.style.display = "block";
-    mp4Player.src = u.href;
-    mp4Player.load();
-    mp4Message.textContent =
-      "Si la fuente permite reproducción directa, el video aparecerá arriba.";
-  } catch (_) {
-    mp4Player.style.display = "none";
-    mp4Player.removeAttribute("src");
-    mp4Player.load();
-    mp4Message.textContent = "Introduce una dirección web válida.";
-  }
-});
-
-mp4Player.addEventListener("error", function () {
-  mp4Message.textContent =
-    "No se pudo reproducir este archivo. Comprueba el enlace, los permisos y el formato.";
-});
-
-        render();
+        const removed = videos.splice(index, 1);
+        if (save()) {
+          render();
+        } else {
+          videos.splice(index, 0, ...removed);
+        }
       }));
 
       card.append(actions);
@@ -319,15 +401,17 @@ mp4Player.addEventListener("error", function () {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+
     const title = titleInput.value.trim();
     const url = urlInput.value.trim();
+    const info = getVideoInfo(url);
 
-    if (!validFacebookUrl(url)) {
-      alert("Introduce un enlace válido de Facebook o fb.watch.");
+    if (info.type === "invalid") {
+      alert("Introduce un enlace web válido que empiece con https:// o http://.");
       return;
     }
 
-    if (videos.some(function (v) { return v.url === url; })) {
+    if (videos.some(v => v.url === url)) {
       alert("Ese enlace ya está en tu galería.");
       return;
     }
@@ -342,18 +426,42 @@ mp4Player.addEventListener("error", function () {
     }
   });
 
-  document.getElementById("clearAll").addEventListener("click",
-    function () {
-      if (!videos.length) {
-        alert("Tu galería ya está vacía.");
-        return;
-      }
-      if (confirm("¿Quieres borrar todos los videos guardados?")) {
-        videos = [];
-        save();
+  document.getElementById("clearAll").addEventListener("click", function () {
+    if (!videos.length) {
+      alert("Tu galería ya está vacía.");
+      return;
+    }
+
+    if (confirm("¿Quieres borrar todos los videos guardados?")) {
+      const previous = videos;
+      videos = [];
+
+      if (save()) {
         render();
+      } else {
+        videos = previous;
       }
-    });
+    }
+  });
+
+  // Reproducción de un video guardado en Archivos del iPhone.
+  localMp4.addEventListener("change", function () {
+    const file = localMp4.files && localMp4.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      localMessage.textContent = "Selecciona un archivo de video compatible.";
+      return;
+    }
+
+    if (localVideoUrl) URL.revokeObjectURL(localVideoUrl);
+
+    localVideoUrl = URL.createObjectURL(file);
+    localPlayer.src = localVideoUrl;
+    localPlayer.style.display = "block";
+    localPlayer.load();
+    localMessage.textContent = "Video seleccionado: " + file.name;
+  });
 
   render();
 })();
