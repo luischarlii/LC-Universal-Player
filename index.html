@@ -230,6 +230,16 @@ footer {
   <h2>Mi galería</h2>
 
 <div class="panel">
+  <label for="videoSearch">🔎 Buscar en mi colección</label>
+  <input
+    id="videoSearch"
+    type="search"
+    placeholder="Escribe el título del video..."
+    autocomplete="off">
+  <p id="searchCount" class="note" aria-live="polite"></p>
+</div>
+
+<div class="panel">
   <label for="categoryFilter">Filtrar videos por categoría</label>
   <select id="categoryFilter">
     <option value="Todas">📚 Todas las categorías</option>
@@ -262,6 +272,8 @@ footer {
   const urlInput = document.getElementById("videoUrl");
 const categoryInput = document.getElementById("videoCategory");
   const gallery = document.getElementById("gallery");
+const videoSearch = document.getElementById("videoSearch");
+const searchCount = document.getElementById("searchCount");
 const categoryFilter = document.getElementById("categoryFilter");
 const filterCount = document.getElementById("filterCount");
   const localMp4 = document.getElementById("localMp4");
@@ -416,17 +428,30 @@ function getPlatformLabel(info) {
       return;
     }
 
-    const filteredVideos = videos.filter(function (video) {
-  const selected = categoryFilter.value;
+    
+const selectedCategory = categoryFilter.value;
+const searchTerm = videoSearch.value.trim().toLocaleLowerCase("es");
 
-  if (selected === "Todas") return true;
-
+const filteredVideos = videos.filter(function (video) {
   const category = video.category || "Sin categoría";
-  return category === selected;
+  const matchesCategory =
+    selectedCategory === "Todas" ||
+    category === selectedCategory;
+
+  const title = (video.title || "").toLocaleLowerCase("es");
+  const matchesSearch = title.includes(searchTerm);
+
+  return matchesCategory && matchesSearch;
 });
 
 filterCount.textContent =
   filteredVideos.length + " de " + videos.length + " videos";
+
+searchCount.textContent = searchTerm
+  ? "Resultados para «" + videoSearch.value.trim() + "»: " +
+    filteredVideos.length
+  : "Videos encontrados: " + filteredVideos.length;
+
 
 filteredVideos.forEach(function (video) {
   const index = videos.indexOf(video);
@@ -621,6 +646,7 @@ card.append(categoryBadge);
     localMessage.textContent = "Video seleccionado: " + file.name;
   });
 categoryFilter.addEventListener("change", render);
+videoSearch.addEventListener("input", render);
   render();
 })();
 </script>
