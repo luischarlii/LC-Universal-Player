@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -148,6 +149,26 @@ footer {
     </button>
   </section>
 
+<section class="panel" id="directPlayer">
+  <h2>Reproducir video directamente</h2>
+  <p class="note">
+    Pega una URL directa a un archivo MP4 que tengas
+    permiso para reproducir. Los enlaces compartidos de
+    Facebook no son enlaces directos a archivos MP4.
+  </p>
+  <label for="mp4Url">Dirección del video MP4</label>
+  <input id="mp4Url" type="url" inputmode="url"
+    placeholder="https://ejemplo.com/video.mp4">
+  <button class="primary" id="playMp4" type="button">
+    Reproducir video
+  </button>
+  <video id="mp4Player" controls playsinline
+    preload="metadata"
+    style="display:none;width:100%;margin-top:14px;border-radius:12px;background:#000">
+  </video>
+  <p id="mp4Message" class="note" aria-live="polite"></p>
+</section>
+
   <h2>Mi galería</h2>
   <section id="gallery" class="gallery">
     <p class="empty">Todavía no has agregado videos.</p>
@@ -253,6 +274,41 @@ actions.append(makeButton("Procesar en FDownloader",
       actions.append(makeButton("Eliminar", "delete", function () {
         videos.splice(index, 1);
         save();
+
+const mp4Url = document.getElementById("mp4Url");
+const mp4Player = document.getElementById("mp4Player");
+const mp4Message = document.getElementById("mp4Message");
+
+document.getElementById("playMp4").addEventListener("click", function () {
+  const value = mp4Url.value.trim();
+
+  try {
+    const u = new URL(value);
+
+    if (u.protocol !== "https:" && u.protocol !== "http:") {
+      throw new Error("Protocolo no válido");
+    }
+
+    if (!value) throw new Error("URL vacía");
+
+    mp4Player.style.display = "block";
+    mp4Player.src = u.href;
+    mp4Player.load();
+    mp4Message.textContent =
+      "Si la fuente permite reproducción directa, el video aparecerá arriba.";
+  } catch (_) {
+    mp4Player.style.display = "none";
+    mp4Player.removeAttribute("src");
+    mp4Player.load();
+    mp4Message.textContent = "Introduce una dirección web válida.";
+  }
+});
+
+mp4Player.addEventListener("error", function () {
+  mp4Message.textContent =
+    "No se pudo reproducir este archivo. Comprueba el enlace, los permisos y el formato.";
+});
+
         render();
       }));
 
