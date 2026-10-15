@@ -414,6 +414,7 @@ card.append(badge);
 const categorySelect = document.createElement("select");
 categorySelect.setAttribute("aria-label", "Categoría de " + video.title);
 
+
 const categories = [
   "Sin categoría",
   "Mecánica",
@@ -421,8 +422,10 @@ const categories = [
   "CapCut",
   "TikTok y redes sociales",
   "Programación",
+  "Películas",
   "Otros"
 ];
+
 
 categories.forEach(function (category) {
   const option = document.createElement("option");
