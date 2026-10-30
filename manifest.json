@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "LC Universal Player",
+  "short_name": "Player Universal LC",
+  "description": "Guarda links de videos favoritos o reproduce de tu galeria.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "./reproductor.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+
