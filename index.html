@@ -1,702 +1,201 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-  <link rel="manifest" href="./manifest.json">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>LC Universal Player</title>
-<style>
-:root {
-  color-scheme: dark;
-  --blue: #1877f2;
-  --bg: #111827;
-  --card: #1f2937;
-  --text: #f9fafb;
-  --muted: #9ca3af;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
-header {
-  padding: 24px 16px;
-  text-align: center;
-  background: #0b1220;
-  border-bottom: 1px solid #374151;
-}
-.logo {
-  width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
-  margin: auto auto 10px;
-  border-radius: 16px;
-  background: var(--blue);
-  font-size: 23px;
-  font-weight: 800;
-}
-h1 { margin: 0; font-size: 25px; }
-header p { color: var(--muted); margin-bottom: 0; }
-main {
-  width: min(900px, 100%);
-  margin: auto;
-  padding: 18px 14px 40px;
-}
-.panel, .video-card {
-  background: var(--card);
-  border: 1px solid #374151;
-  border-radius: 16px;
-  padding: 15px;
-}
-.panel { margin-bottom: 22px; }
-label { display: block; margin: 12px 0 7px; }
-input {
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #4b5563;
-  border-radius: 10px;
-  background: #111827;
-  color: white;
-  font-size: 16px;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>LC Universal Radio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-select {
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #4b5563;
-  border-radius: 10px;
-  background: #111827;
-  color: white;
-  font-size: 16px;
-}
-.category-badge {
-  display: inline-block;
-  margin: 6px 5px 4px 0;
-  padding: 5px 9px;
-  border-radius: 7px;
-  background: #065f46;
-  color: #d1fae5;
-  font-size: 11px;
-  font-weight: 700;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: white;
+    }
 
-button {
-  border: 0;
-  border-radius: 10px;
-  padding: 12px 15px;
-  background: var(--blue);
-  color: white;
-  font-size: 15px;
-  font-weight: 650;
-  cursor: pointer;
-}
-.primary { width: 100%; margin-top: 12px; }
-button.secondary { background: #374151; }
-button.delete { background: #7f1d1d; }
-.note { color: var(--muted); font-size: 13px; line-height: 1.5; }
-h2 { font-size: 20px; }
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-.video-card { min-width: 0; padding: 10px; }
-.video-card h3 {
-  font-size: 15px;
-  overflow-wrap: anywhere;
-  margin: 8px 0;
-}
+    header {
+      padding: 22px 16px;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+    }
 
-.platform-badge {
-  display: inline-block;
-  margin: 4px 5px 4px 0;
-  padding: 5px 9px;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  vertical-align: middle;
-  background: #374151;
-  color: #f9fafb;
-}
-.platform-youtube { background: #b91c1c; }
-.platform-tiktok { background: #111111; border: 1px solid #6b7280; }
-.platform-facebook { background: #1877f2; }
-.platform-mp4 { background: #047857; }
-.platform-external { background: #6b4f9b; }
+    .logo {
+      color: #fbbf24;
+      font-size: 27px;
+      font-weight: bold;
+    }
 
-.player {
-  display: block;
-  width: 100%;
-  aspect-ratio: 9 / 16;
-  max-height: 440px;
-  border: 0;
-  border-radius: 10px;
-  background: #0b1220;
-}
-.player.landscape { aspect-ratio: 16 / 9; }
-video.player {
-  object-fit: contain;
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 10px;
-}
-.actions button { flex: 1; padding: 10px 7px; }
-.empty {
-  grid-column: 1 / -1;
-  padding: 30px 10px;
-  text-align: center;
-  color: var(--muted);
-}
-footer {
-  text-align: center;
-  color: var(--muted);
-  padding: 20px;
-  font-size: 12px;
-}
-@media (max-width: 440px) {
-  .gallery { grid-template-columns: 1fr; }
-  .video-card { padding: 12px; }
-}
-</style>
+    header p {
+      color: #94a3b8;
+      margin-bottom: 0;
+    }
+
+    main {
+      width: 100%;
+      max-width: 480px;
+      margin: 35px auto;
+      padding: 18px;
+    }
+
+    .player {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 22px;
+      padding: 25px 20px;
+      text-align: center;
+    }
+
+    .artwork {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      background: linear-gradient(135deg,#312e81,#0f766e,#b45309);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 55px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 25px;
+      margin: 12px 0;
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+    }
+
+    .status {
+      color: #4ade80;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+
+    button {
+      background: #fbbf24;
+      color: #101827;
+      border: none;
+      border-radius: 50px;
+      width: 76px;
+      height: 76px;
+      font-size: 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .volume {
+      width: 100%;
+      margin-top: 25px;
+      accent-color: #fbbf24;
+    }
+
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 12px;
+      padding: 25px;
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <div class="logo">LC</div>
-  <h1>LC Universal Player</h1>
-  <p>YouTube · TikTok · Facebook · MP4</p>
-</header>
-<!-- Botón Mercado Pago en la cabecera -->
-<div style="text-align:center; margin:15px auto 20px;">
-  <a href="https://mpago.li/1xwA49D"
-     target="_blank"
-     rel="noopener noreferrer"
-     style="display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            gap:10px;
-            background:#ffffff;
-            color:#009EE3;
-            padding:9px 16px;
-            border:2px solid #009EE3;
-            border-radius:10px;
-            text-decoration:none;
-            font-weight:bold;">
-    <img
-      src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/mercado-pago/default.svg"
-      alt="Mercado Pago"
-      width="32"
-      height="32"
-      style="object-fit:contain;">
-    Apoya Proyecto En Mercado Pago
-  </a>
-</div>
-<main>
-  <section class="panel">
-    <h2>Agregar video</h2>
-    <form id="addForm">
-      <label for="videoTitle">Nombre del video</label>
-      <input id="videoTitle" maxlength="100"
-        placeholder="Mi video favorito" required>
 
-<label for="videoCategory">Categoría del tutorial</label>
-<select id="videoCategory">
-  <option value="Mecánica">🔧 Mecánica</option>
-  <option value="Inteligencia artificial">🤖 Inteligencia artificial</option>
-  <option value="CapCut">🎬 CapCut</option>
-  <option value="TikTok y redes sociales">📱 TikTok y redes sociales</option>
-  <option value="Programación">💻 Programación</option>
-<option value="Películas">🎬 Películas</option>
-  <option value="Otros" selected>📚 Otros</option>
-</select>
+  <header>
+    <div class="logo">LC UNIVERSAL RADIO</div>
+    <p>Tu música, tu estación</p>
+  </header>
 
-      <label for="videoUrl">Enlace del video</label>
-      <input id="videoUrl" type="url" inputmode="url"
-        placeholder="Pega aquí el enlace" required>
+  <main>
+    <section class="player">
 
-      <button class="primary" type="submit">
-        ＋ Agregar a mi galería
-      </button>
-    </form>
-    <p class="note">
-      Pega enlaces de YouTube, TikTok o Facebook. También puedes
-      agregar enlaces directos a archivos MP4. La reproducción
-      depende de las funciones y restricciones de cada plataforma.
-      Tu galería se guarda en este navegador.
-    </p>
-    <button id="clearAll" class="secondary" type="button">
-      Borrar toda mi galería
-    </button>
-  </section>
+      <div class="artwork">📻</div>
 
-  <section class="panel">
-    <h2>Reproducir MP4 de mi iPhone</h2>
-    <label for="localMp4">Seleccionar un video descargado</label>
-    <input id="localMp4" type="file" accept="video/*">
-    <video id="localPlayer" class="player landscape"
-      controls playsinline preload="metadata"
-      style="display:none;margin-top:12px"></video>
-    <p id="localMessage" class="note" aria-live="polite">
-      Selecciona un video de la app Archivos de tu iPhone.
-    </p>
-    <p class="note">
-      El archivo se reproduce localmente; no se sube a Internet
-      ni se comparte automáticamente con otros dispositivos.
-    </p>
-  </section>
+      <h1>LC Universal Radio</h1>
 
-  <h2>Mi galería</h2>
+      <div class="subtitle">
+        Música para todos
+      </div>
 
-<div class="panel">
-  <label for="videoSearch">🔎 Buscar en mi colección</label>
-  <input
-    id="videoSearch"
-    type="search"
-    placeholder="Escribe el título del video..."
-    autocomplete="off">
-  <p id="searchCount" class="note" aria-live="polite"></p>
-</div>
+      <div class="status">
+        ● ESTACIÓN PREPARADA
+      </div>
 
-<div class="panel">
-  <label for="categoryFilter">Filtrar videos por categoría</label>
-  <select id="categoryFilter">
-    <option value="Todas">📚 Todas las categorías</option>
-    <option value="Mecánica">🔧 Mecánica</option>
-    <option value="Inteligencia artificial">🤖 Inteligencia artificial</option>
-    <option value="CapCut">🎬 CapCut</option>
-    <option value="TikTok y redes sociales">📱 TikTok y redes sociales</option>
-    <option value="Programación">💻 Programación</option>
-    <option value="Películas">🎞️ Películas</option>
-    <option value="Otros">📚 Otros</option>
-    <option value="Sin categoría">❔ Sin categoría</option>
-  </select>
-  <p id="filterCount" class="note"></p>
-</div>
+      <button id="play" aria-label="Reproducir">▶</button>
 
-  <section id="gallery" class="gallery">
-    <p class="empty">Todavía no has agregado videos.</p>
-  </section>
-</main>
-<div style="text-align:center; margin:25px auto; padding:15px;">
-  <p>Apoya el proyecto LC Universal Player</p>
-  <a href="https://mpago.li/1xwA49D"
-     target="_blank"
-     rel="noopener noreferrer"
-     style="display:inline-flex;
-            align-items:center;
-            gap:10px;
-            background:#ffffff;
-            color:#009EE3;
-            padding:12px 20px;
-            border:2px solid #009EE3;
-            border-radius:10px;
-            text-decoration:none;
-            font-weight:bold;">
-    <img
-      src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/mercado-pago/default.svg"
-      alt="Mercado Pago"
-      width="42"
-      height="42"
-      style="object-fit:contain;">
-    Apoya Proyecto En Mercado Pago
-  </a>
-</div>
-<footer>LC Universal Player · Luis Charlii</footer>
+      <audio id="radio" preload="none"></audio>
 
-<script>
-(function () {
-  // Conservamos la clave anterior para recuperar tu galería.
-  const KEY = "lc-facebook-player-v1";
+      <input
+        class="volume"
+        id="volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.8"
+        aria-label="Volumen"
+      >
 
-  const form = document.getElementById("addForm");
-  const titleInput = document.getElementById("videoTitle");
-  const urlInput = document.getElementById("videoUrl");
-const categoryInput = document.getElementById("videoCategory");
-  const gallery = document.getElementById("gallery");
-const videoSearch = document.getElementById("videoSearch");
-const searchCount = document.getElementById("searchCount");
-const categoryFilter = document.getElementById("categoryFilter");
-const filterCount = document.getElementById("filterCount");
-  const localMp4 = document.getElementById("localMp4");
-  const localPlayer = document.getElementById("localPlayer");
-  const localMessage = document.getElementById("localMessage");
+      <p id="message">Esperando conexión de transmisión</p>
 
-  let videos = [];
-  let localVideoUrl = null;
+    </section>
+  </main>
 
-  try {
-    videos = JSON.parse(localStorage.getItem(KEY) || "[]");
-    if (!Array.isArray(videos)) videos = [];
-    videos = videos.filter(v =>
-      v && typeof v.title === "string" &&
-      typeof v.url === "string"
-    );
-  } catch (_) {
-    videos = [];
-  }
+  <footer>
+    LC Universal Radio · 2026
+  </footer>
 
-  function getUrl(value) {
-    try {
-      const u = new URL(value.trim());
-      if (u.protocol !== "https:" && u.protocol !== "http:") {
-        return null;
-      }
-      return u;
-    } catch (_) {
-      return null;
-    }
-  }
+  <script>
+    const radio = document.getElementById("radio");
+    const play = document.getElementById("play");
+    const volume = document.getElementById("volume");
+    const message = document.getElementById("message");
 
-  function getVideoInfo(value) {
-    const u = getUrl(value);
-    if (!u) return { type: "invalid" };
+    radio.volume = Number(volume.value);
 
-    const host = u.hostname.toLowerCase().replace(/^www\./, "");
+    play.addEventListener("click", async () => {
+      if (radio.paused) {
+        if (!radio.src) {
+          message.textContent =
+            "La transmisión todavía no está configurada.";
+          return;
+        }
 
-    // YouTube: videos normales, enlaces cortos y Shorts.
-    if (["youtube.com", "m.youtube.com", "youtube-nocookie.com"].includes(host)) {
-      let id = u.searchParams.get("v");
-
-      if (u.pathname.startsWith("/shorts/")) {
-        id = u.pathname.split("/")[2];
-      } else if (u.pathname.startsWith("/embed/")) {
-        id = u.pathname.split("/")[2];
-      } else if (u.pathname.startsWith("/live/")) {
-        id = u.pathname.split("/")[2];
-      }
-
-      if (id && /^[\w-]{11}$/.test(id)) {
-        return {
-          type: "youtube",
-          embed: "https://www.youtube-nocookie.com/embed/" +
-            encodeURIComponent(id)
-        };
-      }
-    }
-
-    if (host === "youtu.be") {
-      const id = u.pathname.split("/").filter(Boolean)[0];
-      if (id && /^[\w-]{11}$/.test(id)) {
-        return {
-          type: "youtube",
-          embed: "https://www.youtube-nocookie.com/embed/" +
-            encodeURIComponent(id)
-        };
-      }
-    }
-
-    // TikTok: el reproductor integrado requiere un ID de video.
-    if (host === "tiktok.com" || host.endsWith(".tiktok.com")) {
-      const match = u.pathname.match(/\/video\/(\d+)/);
-      if (match) {
-        return {
-          type: "tiktok",
-          embed: "https://www.tiktok.com/player/v1/" + match[1]
-        };
-      }
-      return { type: "tiktok-link" };
-    }
-
-    // Facebook y fb.watch.
-    if (
-      host === "facebook.com" ||
-      host.endsWith(".facebook.com") ||
-      host === "fb.watch"
-    ) {
-      return {
-        type: "facebook",
-        embed: "https://www.facebook.com/plugins/video.php?href=" +
-          encodeURIComponent(u.href) +
-          "&show_text=false&width=560"
-      };
-    }
-
-    // Archivo de video directo, por ejemplo .mp4.
-    if (/\.(mp4|webm|ogv|ogg|m4v)(?:$)/i.test(u.pathname)) {
-      return { type: "direct-video" };
-    }
-
-    return { type: "external" };
-  }
-
-function getPlatformLabel(info) {
-  switch (info.type) {
-    case "youtube":
-      return { name: "▶ YOUTUBE", css: "platform-youtube" };
-    case "tiktok":
-    case "tiktok-link":
-      return { name: "♪ TIKTOK", css: "platform-tiktok" };
-    case "facebook":
-      return { name: "f FACEBOOK", css: "platform-facebook" };
-    case "direct-video":
-      return { name: "▶ MP4", css: "platform-mp4" };
-    default:
-      return { name: "↗ ENLACE EXTERNO", css: "platform-external" };
-  }
-}
-
-  function save() {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(videos));
-      return true;
-    } catch (_) {
-      alert("No se pudo guardar. Revisa el espacio disponible.");
-      return false;
-    }
-  }
-
-  function makeButton(label, className, action) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = label;
-    button.className = className;
-    button.addEventListener("click", action);
-    return button;
-  }
-
-  function openOriginal(url) {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-
-  function render() {
-    gallery.replaceChildren();
-
-    if (!videos.length) {
-      const empty = document.createElement("p");
-      empty.className = "empty";
-      empty.textContent = "Todavía no has agregado videos.";
-      gallery.append(empty);
-      return;
-    }
-
-    
-const selectedCategory = categoryFilter.value;
-const searchTerm = videoSearch.value.trim().toLocaleLowerCase("es");
-
-const filteredVideos = videos.filter(function (video) {
-  const category = video.category || "Sin categoría";
-  const matchesCategory =
-    selectedCategory === "Todas" ||
-    category === selectedCategory;
-
-  const title = (video.title || "").toLocaleLowerCase("es");
-  const matchesSearch = title.includes(searchTerm);
-
-  return matchesCategory && matchesSearch;
-});
-
-filterCount.textContent =
-  filteredVideos.length + " de " + videos.length + " videos";
-
-searchCount.textContent = searchTerm
-  ? "Resultados para «" + videoSearch.value.trim() + "»: " +
-    filteredVideos.length
-  : "Videos encontrados: " + filteredVideos.length;
-
-
-filteredVideos.forEach(function (video) {
-  const index = videos.indexOf(video);
-      const card = document.createElement("article");
-      card.className = "video-card";
-
-      
-const heading = document.createElement("h3");
-heading.textContent = video.title;
-card.append(heading);
-
-const platform = getPlatformLabel(getVideoInfo(video.url));
-const badge = document.createElement("span");
-badge.className = "platform-badge " + platform.css;
-badge.textContent = platform.name;
-card.append(badge);
-
-const categorySelect = document.createElement("select");
-categorySelect.setAttribute("aria-label", "Categoría de " + video.title);
-
-
-const categories = [
-  "Sin categoría",
-  "Mecánica",
-  "Inteligencia artificial",
-  "CapCut",
-  "TikTok y redes sociales",
-  "Programación",
-  "Películas",
-  "Otros"
-];
-
-
-categories.forEach(function (category) {
-  const option = document.createElement("option");
-  option.value = category;
-  option.textContent = category;
-  categorySelect.append(option);
-});
-
-categorySelect.value = categories.includes(video.category)
-  ? video.category
-  : "Sin categoría";
-
-categorySelect.addEventListener("change", function () {
-  const previousCategory = video.category;
-  video.category = categorySelect.value;
-
-  if (!save()) {
-    video.category = previousCategory;
-    categorySelect.value = categories.includes(previousCategory)
-      ? previousCategory
-      : "Sin categoría";
-  }
-});
-
-card.append(categorySelect);
-
-const categoryBadge = document.createElement("span");
-categoryBadge.className = "category-badge";
-categoryBadge.textContent = "Categoría: " +
-  (video.category || "Sin categoría");
-card.append(categoryBadge);
-
-
-      const info = getVideoInfo(video.url);
-      let player;
-
-      if (
-        info.type === "youtube" ||
-        info.type === "facebook" ||
-        info.type === "tiktok"
-      ) {
-        player = document.createElement("iframe");
-        player.className = "player";
-        player.title = "Reproductor: " + video.title;
-        player.src = info.embed;
-        player.loading = "lazy";
-        player.allow =
-          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-        player.allowFullscreen = true;
-        player.referrerPolicy = "strict-origin-when-cross-origin";
-        card.append(player);
-      } else if (info.type === "direct-video") {
-        player = document.createElement("video");
-        player.className = "player landscape";
-        player.controls = true;
-        player.playsInline = true;
-        player.preload = "metadata";
-        player.src = video.url;
-        card.append(player);
+        try {
+          await radio.play();
+          play.textContent = "Ⅱ";
+          message.textContent = "Conectado a la estación";
+        } catch {
+          message.textContent = "No se pudo iniciar la transmisión.";
+        }
       } else {
-        const message = document.createElement("p");
-        message.className = "note";
-
-        if (info.type === "tiktok-link") {
-          message.textContent =
-            "Para este enlace de TikTok, usa el botón de abajo. Los enlaces cortos no siempre permiten insertar el reproductor.";
-        } else {
-          message.textContent =
-            "Este enlace no ofrece un reproductor integrado compatible. Puedes abrirlo en su sitio original.";
-        }
-        card.append(message);
+        radio.pause();
+        play.textContent = "▶";
+        message.textContent = "Transmisión pausada";
       }
-
-      const actions = document.createElement("div");
-      actions.className = "actions";
-
-      actions.append(makeButton("Abrir video", "secondary", function () {
-        openOriginal(video.url);
-      }));
-
-      actions.append(makeButton("Eliminar", "delete", function () {
-        const removed = videos.splice(index, 1);
-        if (save()) {
-          render();
-        } else {
-          videos.splice(index, 0, ...removed);
-        }
-      }));
-
-      card.append(actions);
-      gallery.append(card);
     });
-  }
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
+    volume.addEventListener("input", () => {
+      radio.volume = Number(volume.value);
+    });
 
-    const title = titleInput.value.trim();
-    const url = urlInput.value.trim();
-    const info = getVideoInfo(url);
+    radio.addEventListener("ended", () => {
+      play.textContent = "▶";
+    });
 
-    if (info.type === "invalid") {
-      alert("Introduce un enlace web válido que empiece con https:// o http://.");
-      return;
-    }
-
-    if (videos.some(v => v.url === url)) {
-      alert("Ese enlace ya está en tu galería.");
-      return;
-    }
-
-    videos.unshift({
-  title: title,
-  url: url,
-  category: categoryInput.value
-});
-
-    if (save()) {
-      form.reset();
-      render();
-    } else {
-      videos.shift();
-    }
-  });
-
-  document.getElementById("clearAll").addEventListener("click", function () {
-    if (!videos.length) {
-      alert("Tu galería ya está vacía.");
-      return;
-    }
-
-    if (confirm("¿Quieres borrar todos los videos guardados?")) {
-      const previous = videos;
-      videos = [];
-
-      if (save()) {
-        render();
-      } else {
-        videos = previous;
-      }
-    }
-  });
-
-  // Reproducción de un video guardado en Archivos del iPhone.
-  localMp4.addEventListener("change", function () {
-    const file = localMp4.files && localMp4.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("video/")) {
-      localMessage.textContent = "Selecciona un archivo de video compatible.";
-      return;
-    }
-
-    if (localVideoUrl) URL.revokeObjectURL(localVideoUrl);
-
-    localVideoUrl = URL.createObjectURL(file);
-    localPlayer.src = localVideoUrl;
-    localPlayer.style.display = "block";
-    localPlayer.load();
-    localMessage.textContent = "Video seleccionado: " + file.name;
-  });
-categoryFilter.addEventListener("change", render);
-videoSearch.addEventListener("input", render);
-  render();
-})();
-</script>
+    radio.addEventListener("error", () => {
+      play.textContent = "▶";
+      message.textContent = "Error al conectar con la transmisión.";
+    });
+  </script>
+<p id="supabase-status">Comprobando conexión con Supabase...</p>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
