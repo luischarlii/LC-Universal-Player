@@ -7,7 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>LC Player Universal</title>
+<title>LC Universal Player</title>
 <style>
 :root {
   color-scheme: dark;
@@ -172,7 +172,7 @@ footer {
 <body>
 <header>
   <div class="logo">LC</div>
-  <h1>LC Player Universal</h1>
+  <h1>LC Universal Player</h1>
   <p>YouTube · TikTok · Facebook · MP4</
     
 <!-- Botón Apoyo con Mercado Pago en la cabecera -->
@@ -407,14 +407,14 @@ footer {
   </section>
 
   <section class="panel">
-    <h2>Reproducir MP4 de mi iPhone</h2>
+    <h2>Reproducir MP4 de mi SmartPhone</h2>
     <label for="localMp4">Seleccionar un video descargado</label>
     <input id="localMp4" type="file" accept="video/*">
     <video id="localPlayer" class="player landscape"
       controls playsinline preload="metadata"
       style="display:none;margin-top:12px"></video>
     <p id="localMessage" class="note" aria-live="polite">
-      Selecciona un video de la app Archivos de tu iPhone.
+      Selecciona un video de la app Archivos de tu SmartPhone.
     </p>
     <p class="note">
       El archivo se reproduce localmente; no se sube a Internet
@@ -822,7 +822,7 @@ card.append(categoryBadge);
     }
   });
 
-  // Reproducción de un video guardado en Archivos del iPhone.
+  // Reproducción de un video guardado en Archivos del SmartPhone.
   localMp4.addEventListener("change", function () {
     const file = localMp4.files && localMp4.files[0];
     if (!file) return;
